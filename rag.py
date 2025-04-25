@@ -1,6 +1,6 @@
 from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
-from langchain.text_splitter import CharacterTextSplitter,  RecursiveCharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter, RecursiveCharacterTextSplitter
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
@@ -12,7 +12,7 @@ import torch
 load_dotenv()
 
 pdf_directory = "./pdfs"
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+embeddings = HuggingFaceEmbeddings(model_name="NYTK/sentence-transformers-experimental-hubert-hungarian")
 model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 pipeline = transformers.pipeline(
     "text-generation",
@@ -50,6 +50,8 @@ def index_documents(documents):
 
 def retrieve_documents(query, k = 3):
     return vector_db.similarity_search(query, k=k)
+
+
 
 
 
