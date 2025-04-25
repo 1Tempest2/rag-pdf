@@ -51,7 +51,7 @@ def load_pdf(pdf_path):
     return documents
 
 
-def text_splitter(documents):
+def text_split(documents):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1024,
         chunk_overlap=256,
@@ -63,7 +63,7 @@ def text_splitter(documents):
 
 def index_documents(documents):
     global vector_db
-    chunks = text_splitter(documents)
+    chunks = text_split(documents)
     vector_db = FAISS.from_documents(chunks, embeddings)
 
 
@@ -75,6 +75,27 @@ def answer_question(question, documents, llm):
     context = "\n\n".join([doc.page_content for doc in documents])
     chain = prompt_template | llm | StrOutputParser()
     return chain.invoke({"question": question, "context": context})
+
+
+uploaded_file = st.file_uploader(
+    "Upload PDF",
+    type="pdf",
+    accept_multiple_files=False
+)
+
+if uploaded_file:
+    upload_pdf(uploaded_file)
+    documents = load_pdf(pdf_directory + uploaded_file.name)
+    chunked_documents = text_split(documents)
+    index_documents(chunked_documents)
+
+    question = st.chat_input()
+
+    if question:
+        st.chat_message("user").write(question)
+        related_documents = retrieve_documents(question)
+        answer = answer_question(question, related_documents)
+        st.chat_message("assistant").write(answer)
 
 
 
