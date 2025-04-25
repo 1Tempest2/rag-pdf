@@ -1,6 +1,6 @@
 from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter,  RecursiveCharacterTextSplitter
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
@@ -33,11 +33,16 @@ def load_pdf(pdf_path):
 
 
 def text_splitter(documents):
-    text_splitter = CharacterTextSplitter(
+    text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1024,
         chunk_overlap=256,
+        separators=["\n\n", "\n", ". ", " ", ""],
         add_start_index=True
     )
+    return text_splitter.split_documents(documents)
+
+
+
 
 
 
