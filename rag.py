@@ -6,6 +6,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
 from langchain_core.output_parsers import StrOutputParser
+from langchain.llms import HuggingFacePipeline
 
 import streamlit as st
 import os
@@ -39,6 +40,7 @@ pipeline = transformers.pipeline(
     model_kwargs={"torch_dtype": torch.bfloat16, "load_in_4bit":True},
     device_map="auto",
 )
+llm = HuggingFacePipeline(pipeline=pipeline)
 
 def upload_pdf(new_pdf):
     with open(pdf_directory + new_pdf.name, "wb") as f:
@@ -94,7 +96,7 @@ if uploaded_file:
     if question:
         st.chat_message("user").write(question)
         related_documents = retrieve_documents(question)
-        answer = answer_question(question, related_documents)
+        answer = answer_question(question, related_documents, llm)
         st.chat_message("assistant").write(answer)
 
 
