@@ -1,15 +1,34 @@
 from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.text_splitter import CharacterTextSplitter, RecursiveCharacterTextSplitter
+from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
+from langchain_core.output_parsers import StrOutputParser
+
+import streamlit as st
 import os
 from dotenv import load_dotenv
 import transformers
 import torch
 
 load_dotenv()
+
+
+prompt_template = PromptTemplate(
+    input_variables=["context", "question"],
+    template="""
+A kérdésre CSAK az alábbi szövegrészletek alapján válaszolj pontosan és lényegre törően. 
+Csak olyan információt használj, ami a szövegrészletekből egyértelműen kiderül. 
+Ha nincs elegendő információ a válaszhoz, mondd azt, hogy "Nem található pontos válasz a megadott dokumentumok alapján."
+
+### Kérdés:
+{question}
+
+### Válasz:
+""",
+)
 
 pdf_directory = "./pdfs"
 embeddings = HuggingFaceEmbeddings(model_name="NYTK/sentence-transformers-experimental-hubert-hungarian")
@@ -52,7 +71,10 @@ def retrieve_documents(query, k = 3):
     return vector_db.similarity_search(query, k=k)
 
 
-
+def answer_question(question, documents, llm):
+    context = "\n\n".join([doc.page_content for doc in documents])
+    chain = prompt_template | llm | StrOutputParser()
+    return chain.invoke({"question": question, "context": context})
 
 
 
