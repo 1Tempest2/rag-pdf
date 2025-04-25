@@ -1,18 +1,21 @@
-from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_community.chat_models import ChatOpenAI
+from langchain_community.document_loaders import PyPDFLoader
+from langchain.output_parsers import StrOutputParser
+
+from langchain_huggingface import HuggingFacePipeline
+
 from langchain.text_splitter import CharacterTextSplitter, RecursiveCharacterTextSplitter
 from langchain.prompts import PromptTemplate
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import RetrievalQA
-from langchain.document_loaders import PyPDFLoader
-from langchain_core.output_parsers import StrOutputParser
-from langchain.llms import HuggingFacePipeline
 
 import streamlit as st
 import os
 from dotenv import load_dotenv
 import transformers
 import torch
+
+
 
 load_dotenv()
 
