@@ -42,6 +42,14 @@ def text_splitter(documents):
     return text_splitter.split_documents(documents)
 
 
+def index_documents(documents):
+    global vector_db
+    chunks = text_splitter(documents)
+    vector_db = FAISS.from_documents(chunks, embeddings)
+
+
+def retrieve_documents(query, k = 3):
+    return vector_db.similarity_search(query, k=k)
 
 
 
