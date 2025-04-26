@@ -5,8 +5,14 @@ from langchain_ollama.llms import OllamaLLM
 from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts import PromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import ChatOpenAI
 
 import streamlit as st
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+openai_api_key = os.getenv("OPENAI_API_KEY") # kérd el a kulcsot
 
 if 'config' not in st.session_state:
     st.session_state.config = {
@@ -34,7 +40,13 @@ Válasz:
 pdf_directory = 'pdfs/'
 
 embeddings = HuggingFaceEmbeddings(model_name=st.session_state.config['selected_embedding'])
-answering_model = OllamaLLM(model=st.session_state.config['selected_model'])
+if "gpt" in st.session_state.config['selected_model'].lower():
+    answering_model = ChatOpenAI(
+        model=st.session_state.config['selected_model'],
+        openai_api_key=openai_api_key
+    )
+else:
+    answering_model = OllamaLLM(model=st.session_state.config['selected_model'])
 
 def upload_pdf(new_pdf):
     with open(pdf_directory + "/" + new_pdf.name, "wb") as f:
@@ -120,7 +132,8 @@ with st.sidebar:
     )
 
     available_models = [
-        "deepseek-r1:14b"
+        "deepseek-r1:14b",
+        "gpt-3.5-turbo"
     ]
 
     st.session_state.config['selected_model'] = st.selectbox(
