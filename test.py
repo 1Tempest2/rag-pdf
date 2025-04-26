@@ -1,20 +1,26 @@
-import streamlit as st
-
-from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_ollama import OllamaEmbeddings
-from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts import PromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 
+import streamlit as st
+
+if 'config' not in st.session_state:
+    st.session_state.config = {
+        'selected_model': "deepseek-r1:14b",
+        'selected_embedding': "NYTK/sentence-transformers-experimental-hubert-hungarian",
+        'chunk_size': 1024,
+        'chunk_overlap': 256,
+        'top_k': 4
+    }
+
 prompt_template = PromptTemplate(
 input_variables=["context", "question"],
 template="""
-Kérlek, a következő kérdésre KIZÁRÓLAG a mellékelt szövegrészletek alapján válaszolj.
+Kérlek, a következő kérdésre KIZÁRÓLAG a mellékelt szövegrészletek alapján MAGYARUL válaszolj.
 Pontosság: Csak olyan információt használj, ami a szövegrészletekből egyértelműen levezethető.
 Hiányos információ: Ha a válasz nem teljesen pontos, de a kontextusból következtetni lehet egy hozzávetőleges válaszra, add meg azt, de jelöld egyértelműen, hogy ez csak becslés.
 Nincs válasz: Ha a szövegrészletek nem tartalmaznak releváns információt, válaszolj: „Nem található pontos válasz a megadott dokumentumok alapján.”
@@ -27,10 +33,8 @@ Válasz:
 
 pdf_directory = 'pdfs/'
 
-embeddings = HuggingFaceEmbeddings(model_name="NYTK/sentence-transformers-experimental-hubert-hungarian")
-
-
-answering_model = OllamaLLM(model="deepseek-r1:14b")
+embeddings = HuggingFaceEmbeddings(model_name=st.session_state.config['selected_embedding'])
+answering_model = OllamaLLM(model=st.session_state.config['selected_model'])
 
 def upload_pdf(new_pdf):
     with open(pdf_directory + "/" + new_pdf.name, "wb") as f:
@@ -45,8 +49,8 @@ def load_pdf(pdf_path):
 
 def text_split(documents):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1024,
-        chunk_overlap=256,
+        chunk_size=st.session_state.config['chunk_size'],
+        chunk_overlap=st.session_state.config['chunk_overlap'],
         separators=["\n\n", "\n", ". ", " ", ""],
         add_start_index=True
     )
@@ -58,7 +62,7 @@ def index_documents(documents):
     vector_db = FAISS.from_documents(chunks, embeddings)
 
 
-def retrieve_documents(query, k = 3):
+def retrieve_documents(query, k=st.session_state.config['top_k']):
     return vector_db.similarity_search(query, k=k)
 
 
@@ -116,15 +120,13 @@ with st.sidebar:
     )
 
     available_models = [
-        "deepseek-r1:14b",
-        "llama3:8b",
-        "mistral:7b"
+        "deepseek-r1:14b"
     ]
 
-    selected_model = st.selectbox(
+    st.session_state.config['selected_model'] = st.selectbox(
         "Válasz ki egy LLM-t",
         options=available_models,
-        index=0,
+        index=available_models.index(st.session_state.config['selected_model']),
         help="Válaszd ki, hogy melyik LLM segitsen válaszolni!"
     )
 
@@ -132,16 +134,22 @@ with st.sidebar:
         "NYTK/sentence-transformers-experimental-hubert-hungarian",
     ]
 
-    selected_embedding = st.selectbox(
+    st.session_state.config['selected_embedding'] = st.selectbox(
         "Beágyazó model választás",
         options=embedding_models,
-        index=0
+        index=embedding_models.index(st.session_state.config['selected_embedding'])
     )
 
-    with st.expander("Splitter beállításai"):
-        chunk_size = st.slider("Chunk Size", 512, 1024, 2048, 64)
-        chunk_overlap = st.slider("Chunk Overlap", 0, 512, 256, 64)
-        top_k = st.slider("K dokumentum", 1, 10, 4, 1)
+    with st.expander("Egyéb beállítások"):
+        st.session_state.config['chunk_size'] = st.slider(
+            "Chunk Size", 512, 2048, st.session_state.config['chunk_size'], 64
+        )
+        st.session_state.config['chunk_overlap'] = st.slider(
+            "Chunk Overlap", 0, 512, st.session_state.config['chunk_overlap'], 64
+        )
+        st.session_state.config['top_k'] = st.slider(
+            "K dokumentum", 1, 10, st.session_state.config['top_k'], 1
+        )
 
     st.markdown("---")
 
