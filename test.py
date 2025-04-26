@@ -14,13 +14,15 @@ from langchain_huggingface import HuggingFaceEmbeddings
 prompt_template = PromptTemplate(
 input_variables=["context", "question"],
 template="""
-A kérdésre CSAK az alábbi szövegrészletek alapján válaszolj pontosan és lényegre törően. 
-Ha nem teljesen pontos, de legalább megközelitő választ találsz akkor az legyen a válasz, de figyelmeztesd a felhasználót, hogy ez csak egy megközelitő válasz.
-Csak olyan információt használj, ami a szövegrészletekből egyértelműen kiderül.
-Ha nincs elegendő információ a válaszhoz, mondd azt, hogy Nem található pontos válasz a megadott dokumentumok alapján.
-Kérdés: {question} 
-Kontextus: {context} 
-Answer:
+Kérlek, a következő kérdésre KIZÁRÓLAG a mellékelt szövegrészletek alapján válaszolj.
+Pontosság: Csak olyan információt használj, ami a szövegrészletekből egyértelműen levezethető.
+Hiányos információ: Ha a válasz nem teljesen pontos, de a kontextusból következtetni lehet egy hozzávetőleges válaszra, add meg azt, de jelöld egyértelműen, hogy ez csak becslés.
+Nincs válasz: Ha a szövegrészletek nem tartalmaznak releváns információt, válaszolj: „Nem található pontos válasz a megadott dokumentumok alapján.”
+Formátum:
+    Válasz rövid, lényegretörő, tételes vagy egyszerű mondatokban.
+Kérdés: {question}
+Kontextus: {context}
+Válasz:
 """)
 
 pdf_directory = 'pdfs/'
