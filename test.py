@@ -159,10 +159,10 @@ with st.sidebar:
 
     with st.expander("Egyéb beállítások"):
         st.session_state.config['chunk_size'] = st.slider(
-            "Chunk Size", 512, 2048, st.session_state.config['chunk_size'], 64
+            "Chunk Size", 16, 1024, st.session_state.config['chunk_size'], 16
         )
         st.session_state.config['chunk_overlap'] = st.slider(
-            "Chunk Overlap", 0, 512, st.session_state.config['chunk_overlap'], 64
+            "Chunk Overlap", 0, 512, st.session_state.config['chunk_overlap'], 16
         )
         st.session_state.config['top_k'] = st.slider(
             "K dokumentum", 1, 10, st.session_state.config['top_k'], 1
