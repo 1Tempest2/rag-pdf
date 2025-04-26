@@ -54,9 +54,12 @@ def upload_pdf(new_pdf):
 
 
 def load_pdf(pdf_path):
-    loader = PyPDFLoader(pdf_path)
-    documents = loader.load()
-    return documents
+    try:
+        loader = PyPDFLoader(pdf_path)
+        return loader.load()
+    except Exception as e:
+        st.error(f"Hiba: {str(e)}")
+        return []
 
 
 def text_split(documents):
@@ -112,7 +115,7 @@ st.markdown("""
     .configheader {
         text-align: center;
         font-weight: bold;    
-        font-size: 6rem;
+        font-size: 3rem;
         color: #3498db;       
         font-family: 'Arial', sans-serif; 
     }
@@ -122,7 +125,7 @@ st.markdown("""
 
 
 with st.sidebar:
-    st.markdown("<h1 class='configheader'>Config</h3>", unsafe_allow_html=True)
+    st.markdown("<h1 class='configheader'>Config</h1>", unsafe_allow_html=True)
     st.markdown("---")
 
     uploaded_file = st.file_uploader(
