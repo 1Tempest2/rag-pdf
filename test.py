@@ -6,6 +6,7 @@ from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_ollama import OllamaEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama.llms import OllamaLLM
+from langchain_huggingface import HuggingFaceEmbeddings
 
 template = """
 A kérdésre CSAK az alábbi szövegrészletek alapján válaszolj pontosan és lényegre törően. 
@@ -18,7 +19,7 @@ Answer:
 
 pdfs_directory = 'pdfs/'
 
-embeddings = OllamaEmbeddings(model="deepseek-r1:14b")
+embeddings = HuggingFaceEmbeddings(model_name="NYTK/sentence-transformers-experimental-hubert-hungarian")
 vector_store = InMemoryVectorStore(embeddings)
 
 model = OllamaLLM(model="deepseek-r1:14b")
