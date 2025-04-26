@@ -26,12 +26,12 @@ if 'config' not in st.session_state:
 prompt_template = PromptTemplate(
 input_variables=["context", "question"],
 template="""
-Kérlek, a következő kérdésre KIZÁRÓLAG a mellékelt szövegrészletek alapján MAGYARUL válaszolj.
+Kérlek, a következő kérdésre KIZÁRÓLAG a mellékelt szövegrészletek alapján MAGYAR NYELVEN válaszolj.
 Pontosság: Csak olyan információt használj, ami a szövegrészletekből egyértelműen levezethető.
 Hiányos információ: Ha a válasz nem teljesen pontos, de a kontextusból következtetni lehet egy hozzávetőleges válaszra, add meg azt, de jelöld egyértelműen, hogy ez csak becslés.
 Nincs válasz: Ha a szövegrészletek nem tartalmaznak releváns információt, válaszolj: „Nem található pontos válasz a megadott dokumentumok alapján.”
 Formátum:
-    Válasz rövid, lényegretörő, tételes vagy egyszerű mondatokban.
+    Válasz rövid, lényegretörő, vagy egyszerű mondatokban.
 Kérdés: {question}
 Kontextus: {context}
 Válasz:
@@ -110,18 +110,19 @@ st.markdown("""
         padding-bottom: 2rem;
     }
     .configheader {
-    text-align: center;
-    font-weight: bold;    
-    font-size: 3rem;
-    color: #3498db;       
-    font-family: 'Arial', sans-serif; 
+        text-align: center;
+        font-weight: bold;    
+        font-size: 6rem;
+        color: #3498db;       
+        font-family: 'Arial', sans-serif; 
+    }
 }
     </style>
     """, unsafe_allow_html=True)
 
 
 with st.sidebar:
-    st.markdown("<h3 class='configheader'>Config</h3>", unsafe_allow_html=True)
+    st.markdown("<h1 class='configheader'>Config</h3>", unsafe_allow_html=True)
     st.markdown("---")
 
     uploaded_file = st.file_uploader(
