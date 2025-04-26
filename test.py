@@ -15,7 +15,8 @@ prompt_template = PromptTemplate(
 input_variables=["context", "question"],
 template="""
 A kérdésre CSAK az alábbi szövegrészletek alapján válaszolj pontosan és lényegre törően. 
-Csak olyan információt használj, ami a szövegrészletekből egyértelműen kiderül. 
+Ha nem teljesen pontos, de legalább megközelitő választ találsz akkor az legyen a válasz, de figyelmeztesd a felhasználót, hogy ez csak egy megközelitő válasz.
+Csak olyan információt használj, ami a szövegrészletekből egyértelműen kiderül.
 Ha nincs elegendő információ a válaszhoz, mondd azt, hogy Nem található pontos válasz a megadott dokumentumok alapján.
 Kérdés: {question} 
 Kontextus: {context} 
@@ -65,13 +66,12 @@ def answer_question(question, documents, llm):
     return chain.invoke({"question": question, "context": context})
 
 
-# Set page config
+
 st.set_page_config(
     page_title="RAG asszisztens",
     page_icon="🤖",
     layout="wide"
 )
-
 
 
 st.markdown("""
@@ -198,7 +198,8 @@ with main_col2:
         if "messages" in st.session_state and len(st.session_state.messages) > 0 and st.session_state.messages[-1][
             "role"] == "assistant":
             st.markdown("### Top találatok:")
-
+            with st.expander("Top K Retrieved"):
+                st.write(related_documents)
     else:
         st.warning("Nincs betöltött dokumentum!")
 
