@@ -3,6 +3,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.chat_models import ChatOpenAI
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.output_parsers import StrOutputParser
+from langchain_ollama.llms import OllamaLLM
 
 from langchain_huggingface import HuggingFacePipeline
 
@@ -36,17 +37,17 @@ Ha nincs elegendő információ a válaszhoz, mondd azt, hogy "Nem található p
 
 pdf_directory = "./pdfs"
 embeddings = HuggingFaceEmbeddings(model_name="NYTK/sentence-transformers-experimental-hubert-hungarian")
-model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-pipeline = transformers.pipeline(
-    "text-generation",
-    model=model_id,
-    model_kwargs={"torch_dtype": torch.bfloat16, "load_in_4bit":True},
-    device_map="auto",
-)
-llm = HuggingFacePipeline(pipeline=pipeline)
+# model_id = "deepseek-r1-14b"
+# pipeline = transformers.pipeline(
+#    "text-generation",
+#    model=model_id,
+#    model_kwargs={"torch_dtype": torch.bfloat16, "load_in_4bit":True},
+#    device_map="auto",
+# )
+llm = OllamaLLM(model="deepseek-r1:14b")
 
 def upload_pdf(new_pdf):
-    with open(pdf_directory + new_pdf.name, "wb") as f:
+    with open(pdf_directory + "/" + new_pdf.name, "wb") as f:
         f.write(new_pdf.getbuffer())
 
 

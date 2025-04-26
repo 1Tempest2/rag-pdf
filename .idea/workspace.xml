@@ -37,7 +37,7 @@
     &quot;Python.rag.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;streamlit&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;model__testing&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -64,7 +64,9 @@
       <workItem from="1745604010481" duration="1316000" />
       <workItem from="1745605347473" duration="1896000" />
       <workItem from="1745608741343" duration="210000" />
-      <workItem from="1745610809116" duration="1558000" />
+      <workItem from="1745610809116" duration="2152000" />
+      <workItem from="1745671270594" duration="1657000" />
+      <workItem from="1745673214031" duration="7613000" />
     </task>
     <servers />
   </component>
@@ -72,6 +74,6 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/rag_pdf$rag.coverage" NAME="rag Coverage Results" MODIFIED="1745611189410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/rag_pdf$rag.coverage" NAME="rag Coverage Results" MODIFIED="1745676402744" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
