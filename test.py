@@ -3,6 +3,7 @@ import streamlit as st
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_ollama import OllamaEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama.llms import OllamaLLM
@@ -17,35 +18,36 @@ Kontextus: {context}
 Answer:
 """
 
-pdfs_directory = 'pdfs/'
+pdf_directory = 'pdfs/'
 
 embeddings = HuggingFaceEmbeddings(model_name="NYTK/sentence-transformers-experimental-hubert-hungarian")
 
 
 model = OllamaLLM(model="deepseek-r1:14b")
 
-def upload_pdf(file):
-    with open(pdfs_directory + file.name, "wb") as f:
-        f.write(file.getbuffer())
+def upload_pdf(new_pdf):
+    with open(pdf_directory + "/" + new_pdf.name, "wb") as f:
+        f.write(new_pdf.getbuffer())
 
-def load_pdf(file_path):
-    loader = PDFPlumberLoader(file_path)
+
+def load_pdf(pdf_path):
+    loader = PyPDFLoader(pdf_path)
     documents = loader.load()
-
     return documents
 
-def split_text(documents):
+
+def text_split(documents):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
+        chunk_size=1024,
+        chunk_overlap=256,
+        separators=["\n\n", "\n", ". ", " ", ""],
         add_start_index=True
     )
-
     return text_splitter.split_documents(documents)
 
 def index_documents(documents):
     global vector_db
-    chunks = split_text(documents)
+    chunks = text_split(documents)
     vector_db = FAISS.from_documents(chunks, embeddings)
 
 
@@ -68,8 +70,8 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file:
     upload_pdf(uploaded_file)
-    documents = load_pdf(pdfs_directory + uploaded_file.name)
-    chunked_documents = split_text(documents)
+    documents = load_pdf(pdf_directory + uploaded_file.name)
+    chunked_documents = text_split(documents)
     index_documents(chunked_documents)
 
     question = st.chat_input()
