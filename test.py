@@ -2,7 +2,7 @@ import streamlit as st
 
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_community.vectorstores import FAISS
 from langchain_ollama import OllamaEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama.llms import OllamaLLM
@@ -20,7 +20,7 @@ Answer:
 pdfs_directory = 'pdfs/'
 
 embeddings = HuggingFaceEmbeddings(model_name="NYTK/sentence-transformers-experimental-hubert-hungarian")
-vector_store = InMemoryVectorStore(embeddings)
+
 
 model = OllamaLLM(model="deepseek-r1:14b")
 
@@ -43,11 +43,15 @@ def split_text(documents):
 
     return text_splitter.split_documents(documents)
 
-def index_docs(documents):
-    vector_store.add_documents(documents)
+def index_documents(documents):
+    global vector_db
+    chunks = split_text(documents)
+    vector_db = FAISS.from_documents(chunks, embeddings)
 
-def retrieve_docs(query):
-    return vector_store.similarity_search(query)
+
+def retrieve_documents(query, k = 3):
+    return vector_db.similarity_search(query, k=k)
+
 
 def answer_question(question, documents):
     context = "\n\n".join([doc.page_content for doc in documents])
@@ -66,12 +70,12 @@ if uploaded_file:
     upload_pdf(uploaded_file)
     documents = load_pdf(pdfs_directory + uploaded_file.name)
     chunked_documents = split_text(documents)
-    index_docs(chunked_documents)
+    index_documents(chunked_documents)
 
     question = st.chat_input()
 
     if question:
         st.chat_message("user").write(question)
-        related_documents = retrieve_docs(question)
+        related_documents = retrieve_documents(question)
         answer = answer_question(question, related_documents)
         st.chat_message("assistant").write(answer)
