@@ -7,23 +7,27 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_ollama import OllamaEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama.llms import OllamaLLM
+from langchain_core.output_parsers import StrOutputParser
+from langchain.prompts import PromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 
-template = """
+prompt_template = PromptTemplate(
+input_variables=["context", "question"],
+template="""
 A kérdésre CSAK az alábbi szövegrészletek alapján válaszolj pontosan és lényegre törően. 
 Csak olyan információt használj, ami a szövegrészletekből egyértelműen kiderül. 
 Ha nincs elegendő információ a válaszhoz, mondd azt, hogy Nem található pontos válasz a megadott dokumentumok alapján.
 Kérdés: {question} 
 Kontextus: {context} 
 Answer:
-"""
+""")
 
 pdf_directory = 'pdfs/'
 
 embeddings = HuggingFaceEmbeddings(model_name="NYTK/sentence-transformers-experimental-hubert-hungarian")
 
 
-model = OllamaLLM(model="deepseek-r1:14b")
+llm = OllamaLLM(model="deepseek-r1:14b")
 
 def upload_pdf(new_pdf):
     with open(pdf_directory + "/" + new_pdf.name, "wb") as f:
@@ -55,11 +59,9 @@ def retrieve_documents(query, k = 3):
     return vector_db.similarity_search(query, k=k)
 
 
-def answer_question(question, documents):
+def answer_question(question, documents, llm):
     context = "\n\n".join([doc.page_content for doc in documents])
-    prompt = ChatPromptTemplate.from_template(template)
-    chain = prompt | model
-
+    chain = prompt_template | llm | StrOutputParser()
     return chain.invoke({"question": question, "context": context})
 
 uploaded_file = st.file_uploader(
@@ -79,5 +81,5 @@ if uploaded_file:
     if question:
         st.chat_message("user").write(question)
         related_documents = retrieve_documents(question)
-        answer = answer_question(question, related_documents)
+        answer = answer_question(question, related_documents, llm)
         st.chat_message("assistant").write(answer)
