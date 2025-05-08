@@ -1,11 +1,13 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import ElasticsearchStore
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts import PromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import ChatOpenAI
+
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -37,6 +39,15 @@ Kontextus: {context}
 Válasz:
 """)
 
+keyword_extraction_prompt = PromptTemplate(
+input_variables=["question"],
+template="""
+Az alábbi felhasználói kérdés alapján add vissza az 5 legrelevánsabb kulcsszót (vesszőkkel elválasztva), amelyek segíthetnek a dokumentumban lévő történő keresésben.
+Fontos: csak kulcsszavakat adj vissza, nincs magyarázat, nincs felsorolás.
+Kérdés: {question}
+Kulcsszavak:
+""")
+
 pdf_directory = 'pdfs/'
 
 embeddings = HuggingFaceEmbeddings(model_name=st.session_state.config['selected_embedding'])
@@ -62,6 +73,11 @@ def load_pdf(pdf_path):
         return []
 
 
+def extract_keywords(question):
+    chain = keyword_extraction_prompt | answering_model | StrOutputParser()
+    result = chain.invoke({"question": question})
+    return [keyword.strip() for keyword in result.split(",") if keyword.strip()]
+
 def text_split(documents):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=st.session_state.config['chunk_size'],
@@ -78,7 +94,9 @@ def index_documents(documents):
 
 
 def retrieve_documents(query, k=st.session_state.config['top_k']):
-    return vector_db.similarity_search(query, k=k)
+    keywords = extract_keywords(query)
+    semantic_query = " ".join(keywords)
+    return vector_db.similarity_search(semantic_query, k=k)
 
 
 def answer_question(question, documents, llm):
