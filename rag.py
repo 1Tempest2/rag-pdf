@@ -1,6 +1,7 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_community.vectorstores import ElasticsearchStore
+from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.output_parsers import StrOutputParser
@@ -12,6 +13,8 @@ from langchain_openai import ChatOpenAI
 import streamlit as st
 from dotenv import load_dotenv
 import os
+
+from sentence_transformers import SentenceTransformer
 
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY") # kérd el a kulcsot
@@ -50,7 +53,16 @@ Kulcsszavak:
 
 pdf_directory = 'pdfs/'
 
-embeddings = HuggingFaceEmbeddings(model_name=st.session_state.config['selected_embedding'])
+if "msmarco" in st.session_state.config["selected_embedding"]:
+    embeddings = SentenceTransformerEmbeddings(
+        model_name=st.session_state.config['selected_embedding']
+    )
+else:
+    embeddings = HuggingFaceEmbeddings(
+        model_name=st.session_state.config['selected_embedding']
+    )
+
+
 if "gpt" in st.session_state.config['selected_model'].lower():
     answering_model = ChatOpenAI(
         model=st.session_state.config['selected_model'],
@@ -167,6 +179,7 @@ with st.sidebar:
 
     embedding_models = [
         "NYTK/sentence-transformers-experimental-hubert-hungarian",
+        "msmarco-distilbert-base-v4"
     ]
 
     st.session_state.config['selected_embedding'] = st.selectbox(
