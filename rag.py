@@ -23,6 +23,7 @@ if 'config' not in st.session_state:
     st.session_state.config = {
         'selected_model': "deepseek-r1:14b",
         'selected_embedding': "NYTK/sentence-transformers-experimental-hubert-hungarian",
+        'selected_splitting': "Character-based",
         'chunk_size': 1024,
         'chunk_overlap': 256,
         'top_k': 4
@@ -91,13 +92,25 @@ def extract_keywords(question):
     return [keyword.strip() for keyword in result.split(",") if keyword.strip()]
 
 def text_split(documents):
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=st.session_state.config['chunk_size'],
-        chunk_overlap=st.session_state.config['chunk_overlap'],
-        separators=["\n\n", "\n", ". ", " ", ""],
-        add_start_index=True
-    )
-    return text_splitter.split_documents(documents)
+    if(st.session_state.config['selected_splitting'] == "Character-based"):
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=st.session_state.config['chunk_size'],
+            chunk_overlap=st.session_state.config['chunk_overlap'],
+            separators=["\n\n", "\n", ". ", " ", ""],
+            add_start_index=True
+            )
+        return text_splitter.split_documents(documents)
+    elif(st.session_state.config['selected_splitting'] == "Token-based"):
+        encoding_name = "cl100k_base"
+        text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+            encoding_name=encoding_name,
+            chunk_size=st.session_state.config['chunk_size'],
+            chunk_overlap=st.session_state.config['chunk_overlap'],
+            add_start_index=True
+        )
+        return text_splitter.split_documents(documents)
+    elif(st.session_state.config['selected_splitting'] == "Semantic-based"):
+        return "bazdmeg"
 
 def index_documents(documents):
     global vector_db
@@ -186,6 +199,18 @@ with st.sidebar:
         "Beágyazó model választás",
         options=embedding_models,
         index=embedding_models.index(st.session_state.config['selected_embedding'])
+    )
+
+    splitting_options = [
+        "Character-based",
+        "Token-based",
+        "Semantic-based",
+    ]
+
+    st.session_state.config['selected_splitting'] = st.selectbox(
+        "Text splitter beállításai",
+        options=splitting_options,
+        index=splitting_options.index(st.session_state.config['selected_splitting'])
     )
 
     with st.expander("Egyéb beállítások"):
