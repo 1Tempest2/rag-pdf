@@ -8,16 +8,16 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts import PromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import ChatOpenAI
+from langchain_experimental.text_splitter import SemanticChunker
 
 
 import streamlit as st
 from dotenv import load_dotenv
 import os
 
-from sentence_transformers import SentenceTransformer
 
 load_dotenv()
-openai_api_key = os.getenv("OPENAI_API_KEY") # kérd el a kulcsot
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 if 'config' not in st.session_state:
     st.session_state.config = {
@@ -110,7 +110,13 @@ def text_split(documents):
         )
         return text_splitter.split_documents(documents)
     elif(st.session_state.config['selected_splitting'] == "Semantic-based"):
-        return "bazdmeg"
+        text_splitter = SemanticChunker(
+            embeddings=embeddings,
+            breakpoint_threshold_type="standard_deviation"
+        )
+        return text_splitter.split_documents(documents)
+    return None
+
 
 def index_documents(documents):
     global vector_db
