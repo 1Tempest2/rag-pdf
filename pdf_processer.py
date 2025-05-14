@@ -1,5 +1,4 @@
 import os
-import uuid
 import fitz  # PyMuPDF
 from pathlib import Path
 import re
@@ -15,7 +14,7 @@ def upload_pdf(uploaded_file, pdf_directory: str) -> Path:
     pdf_directory = Path(pdf_directory)
     pdf_directory.mkdir(parents=True, exist_ok=True)
 
-    unique_name = f"{uuid.uuid4()}_{sanitize_filename(uploaded_file.name)}"
+    unique_name = f"{sanitize_filename(uploaded_file.name)}"
     save_path = pdf_directory / unique_name
 
     with open(save_path, "wb") as f:
@@ -34,10 +33,6 @@ def extract_text_from_pdf(pdf_path: Path) -> str:
 def clean_hungarian_text(text: str) -> str:
     # a szöveg közbeni [1] cuccosok törlése
     text = re.sub(r"\[\d+\]", "", text)
-
-    # Az 1.Bevezetés és a hasonlók kijelölése
-    text = re.sub(r"(\d+\.\s*[A-Za-záéíóöőúüű]+)", r"[ÚJ SZEKCIÓ] \1", text)
-
     # extra sorkihagyások, tabok, spacek
     text = re.sub(r"\s+", " ", text)
 
@@ -53,12 +48,16 @@ def clean_hungarian_text(text: str) -> str:
     text = text.strip()
     return text
 
-def remove_metadata_from_pdf(pdf_path: Path) -> None:
-    with fitz.open(pdf_path) as doc:
-        doc.metadata = {}
-        doc.save(pdf_path)
+def remove_metadata_from_pdf(pdf_path):
+    doc = fitz.open(pdf_path)
+    doc.set_metadata({})
+    temp_path = pdf_path.with_name(pdf_path.stem + "_temp.pdf")
+    doc.save(temp_path)
+    doc.close()
+    os.replace(temp_path, pdf_path)
 
-def process_pdf(uploaded_file, pdf_directory: str = "uploaded_pdfs") -> str:
+
+def process_pdf(uploaded_file, pdf_directory: str = "pdfs/") -> str:
     pdf_path = upload_pdf(uploaded_file, pdf_directory)
     remove_metadata_from_pdf(pdf_path)
     raw_text = extract_text_from_pdf(pdf_path)
