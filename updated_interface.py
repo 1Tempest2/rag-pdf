@@ -2,14 +2,22 @@ import streamlit as st
 from pathlib import Path
 from chunker import chunk_text
 import pdf_processer as pdf
+from gemma_answer_generator import RAGAnswerGenerator
 from semantic_retriever import SemanticRetriever
 from langchain.schema import Document
 
 @st.cache_resource
 def get_retriever():
     return SemanticRetriever()
+@st.cache_resource
+def get_model():
+    return RAGAnswerGenerator()
 
 retriever = get_retriever()
+answering_model = get_model()
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 st.title("📚 Magyar Dokumentum Kereső")
 
@@ -40,20 +48,22 @@ if uploaded_file is not None:
         st.sidebar.success(f"✅ Dokumentum már feldolgozva ({len(st.session_state.chunks)} szegmens)")
 
 # Query input
-query = st.text_input("Kérdezz a dokumentumról:")
+query = st.text_input("Kérdezz valamit:")
 
-if st.button("Keresés") and query.strip():
-    if "chunks" in st.session_state:
-        results = retriever.retrieve(query)
-        if results:
-            st.subheader("Talált releváns szegmensek:")
-            for i, doc in enumerate(results, 1):
-                st.markdown(f"**Szegmens {i}:**")
-                st.write(doc.page_content)
-        else:
-            st.info("Nem találtunk releváns szegmenseket.")
-    else:
-        st.warning("Először tölts fel egy PDF-et!")
+if query:
+    st.session_state.messages.append({"role": "user", "content": query})
+    with st.chat_message("user"):
+        st.write(query)
+    with st.spinner("Információ keresése..."):
+        related_documents = retriever.retrieve(query)
+        retrieved_documents = [{"chunk": doc.page_content} for doc in related_documents]
+        answer = answering_model.generate_answer(query, retrieved_documents)
+
+        st.session_state.messages.append({"role": "assistant", "content": answer})
+    with st.chat_message("assistant"):
+        st.write(answer)
+else:
+    st.warning("Először tölts fel egy PDF-et!")
 
 # Debug toggle
 show_debug = st.sidebar.checkbox("Debug nézet mutatása", value=False)

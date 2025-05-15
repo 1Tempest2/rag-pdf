@@ -59,7 +59,7 @@ def remove_metadata_from_pdf(pdf_path):
 
 def process_pdf(uploaded_file, pdf_directory: str = "pdfs/") -> str:
     pdf_path = upload_pdf(uploaded_file, pdf_directory)
-    remove_metadata_from_pdf(pdf_path)
+    #remove_metadata_from_pdf(pdf_path)
     raw_text = extract_text_from_pdf(pdf_path)
     cleaned_text = clean_hungarian_text(raw_text)
     return cleaned_text

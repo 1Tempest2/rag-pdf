@@ -64,7 +64,3 @@ Kérdés: {query}
         response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         return response.split("<start_of_turn>model")[-1].strip()
 
-    def query_without_context(self, query: str) -> str:
-        """Generate an answer without any context - for testing"""
-        prompt = f"<start_of_turn>user\nKérdés: {query}<end_of_turn>\n<start_of_turn>model\n"
-        return self._call_llm_local(prompt)
