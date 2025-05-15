@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8bebf084-cc89-48a3-8ff7-802993aa30d3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gemma_answer_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/gemma_answer_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pdf_processer.py" beforeDir="false" afterPath="$PROJECT_DIR$/pdf_processer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semantic_retriever.py" beforeDir="false" afterPath="$PROJECT_DIR$/semantic_retriever.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/updated_interface.py" beforeDir="false" afterPath="$PROJECT_DIR$/updated_interface.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -41,7 +40,7 @@
     "Python.updated_interface.executor": "Coverage",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "complete__pipeline",
+    "git-widget-placeholder": "clearing-reformatting",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -88,7 +87,7 @@
       <workItem from="1747308205500" duration="1602000" />
       <workItem from="1747315140041" duration="612000" />
       <workItem from="1747315766104" duration="2044000" />
-      <workItem from="1747317873829" duration="2200000" />
+      <workItem from="1747317873829" duration="4429000" />
     </task>
     <servers />
   </component>
